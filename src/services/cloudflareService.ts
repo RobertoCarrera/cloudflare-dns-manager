@@ -1,20 +1,45 @@
+// filepath: services/cloudflareService.ts
 import axios from 'axios';
-import { CloudflareConfig } from '../config/cloudflareConfig';
+import { cloudflareConfig } from '../config/cloudflareConfig';
 import { DnsRecord, CloudflareResponse } from '../types';
 
 export class CloudflareService {
-    private apiUrl: string;
-    private apiKey: string;
-    private email: string;
+    private apiUrl = cloudflareConfig.apiUrl;
+    private apiKey = cloudflareConfig.apiKey;
 
-    constructor() {
-        this.apiUrl = CloudflareConfig.apiUrl;
-        this.apiKey = CloudflareConfig.apiKey;
-        this.email = CloudflareConfig.email;
+    private getHeaders() {
+        return {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+        };
     }
 
-    async createDnsRecord(zoneId: string, record: DnsRecord): Promise<CloudflareResponse> {
-        const response = await axios.post(`${this.apiUrl}/zones/${zoneId}/dns_records`, record, {
+    public async getDnsRecords(zoneId: string): Promise<any> {
+        const url = `${this.apiUrl}/zones/${zoneId}/dns_records`;
+        const response = await axios.get(url, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    public async createDnsRecord(zoneId: string, record: DnsRecord): Promise<CloudflareResponse> {
+        const url = `${this.apiUrl}/zones/${zoneId}/dns_records`;
+        const response = await axios.post(url, record, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    public async updateDnsRecord(zoneId: string, recordId: string, record: DnsRecord): Promise<CloudflareResponse> {
+        const url = `${this.apiUrl}/zones/${zoneId}/dns_records/${recordId}`;
+        const response = await axios.put(url, record, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    public async deleteDnsRecord(zoneId: string, recordId: string): Promise<CloudflareResponse> {
+        const url = `${this.apiUrl}/zones/${zoneId}/dns_records/${recordId}`;
+        const response = await axios.delete(url, { headers: this.getHeaders() });
+        return response.data;
+    }
+
+    public async getAllZones(): Promise<any> {
+        const response = await axios.get(`${this.apiUrl}/zones`, {
             headers: {
                 'Authorization': `Bearer ${this.apiKey}`,
                 'Content-Type': 'application/json'
@@ -22,32 +47,5 @@ export class CloudflareService {
         });
         return response.data;
     }
-
-    async updateDnsRecord(zoneId: string, recordId: string, record: DnsRecord): Promise<CloudflareResponse> {
-        const response = await axios.put(`${this.apiUrl}/zones/${zoneId}/dns_records/${recordId}`, record, {
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        return response.data;
-    }
-
-    async deleteDnsRecord(zoneId: string, recordId: string): Promise<CloudflareResponse> {
-        const response = await axios.delete(`${this.apiUrl}/zones/${zoneId}/dns_records/${recordId}`, {
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`
-            }
-        });
-        return response.data;
-    }
-
-    async getDnsRecords(zoneId: string): Promise<CloudflareResponse> {
-        const response = await axios.get(`${this.apiUrl}/zones/${zoneId}/dns_records`, {
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`
-            }
-        });
-        return response.data;
-    }
+    
 }

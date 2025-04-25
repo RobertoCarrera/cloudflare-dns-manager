@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import { errorHandler } from './middlewares/errorHandler';
 import { setRoutes } from './routes/dnsRoutes';
 
 const app = express();
@@ -16,3 +17,5 @@ setRoutes(app);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+app.use(errorHandler); // Middleware de manejo de errores

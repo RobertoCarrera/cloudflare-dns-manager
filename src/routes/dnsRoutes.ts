@@ -1,14 +1,12 @@
-import { Router } from 'express';
-import DnsController from '../controllers/dnsController';
+import { Express } from 'express';
+import { DnsController } from '../controllers/dnsController';
 
-const router = Router();
 const dnsController = new DnsController();
 
-export const setRoutes = () => {
-    router.post('/dns', dnsController.addDnsRecord);
-    router.put('/dns/:id', dnsController.updateDnsRecord);
-    router.delete('/dns/:id', dnsController.deleteDnsRecord);
-    router.get('/dns', dnsController.getDnsRecords);
-    
-    return router;
+export const setRoutes = (app: Express): void => {
+    app.get('/api/dns/:zoneId', dnsController.getDnsRecords.bind(dnsController));
+    app.post('/api/dns', dnsController.addDnsRecord.bind(dnsController));
+    app.put('/api/dns/:id', dnsController.updateDnsRecord.bind(dnsController));
+    app.delete('/api/dns/:id', dnsController.removeDnsRecord.bind(dnsController));
+    app.get('/api/zones', dnsController.getAllZones.bind(dnsController));
 };
